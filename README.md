@@ -11,9 +11,9 @@ artwork generators, the upload pipeline and the repository template.
 ```
 toolbox/dibujo.py      drawing primitives and the 5x7 font (standard library only)
 toolbox/publish.py     builds the package and the upload vdf, uploads, verifies
-toolbox/arte/katana.py listing artwork for the Katana Sharpening mod
-toolbox/arte/perks.py  listing artwork for the Perk Descriptions mod
-plantilla/              template for a new mod repository
+toolbox/art/katana.py listing artwork for the Katana Sharpening mod
+toolbox/art/perks.py  listing artwork for the Perk Descriptions mod
+template/              template for a new mod repository
 CONVENCIONES.md        code, commit and release conventions
 ```
 
@@ -32,7 +32,7 @@ finally downloads the published item and compares it with the repository.
 Regenerate the listing artwork of a mod:
 
 ```bash
-python3 -m toolbox.arte.katana ../pz-katana-sharpening
+python3 -m toolbox.art.katana ../pz-katana-sharpening
 ```
 
 ## Requirements

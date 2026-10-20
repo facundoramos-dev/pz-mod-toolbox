@@ -40,8 +40,8 @@ def sync_contents(repo, ficha):
     if destino.exists():
         shutil.rmtree(destino)
     destino.mkdir(parents=True)
-    for nombre in ficha["mods"]:
-        shutil.copytree(repo / "mods" / nombre, destino / nombre)
+    for name in ficha["mods"]:
+        shutil.copytree(repo / "mods" / name, destino / name)
     return destino
 
 
@@ -81,10 +81,10 @@ def write_descriptions(repo, ficha):
         "other languages are always pasted **after** the last steamCMD upload.",
         "",
     ]
-    for idioma, datos in ficha.get("languages", {}).items():
+    for idioma, data in ficha.get("languages", {}).items():
         lineas += ["---", "", f"## {idioma}", "", "Title:", "", "```",
-                   datos["title"], "```", "", "Description:", "", "```",
-                   datos["description"], "```", ""]
+                   data["title"], "```", "", "Description:", "", "```",
+                   data["description"], "```", ""]
     destino = repo / "workshop" / "descripciones.md"
     destino.write_text("\n".join(lineas), encoding="utf-8")
     return destino
@@ -110,15 +110,15 @@ def verify(repo, ficha, user):
                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     publicado = destino / "steamapps" / "workshop" / "content" / APP_ID / str(ficha["publishedfileid"])
     ok = True
-    for nombre in ficha["mods"]:
-        origen = repo / "mods" / nombre
-        copia = publicado / "mods" / nombre
+    for name in ficha["mods"]:
+        origen = repo / "mods" / name
+        copia = publicado / "mods" / name
         if not copia.exists():
-            print(f"  {nombre}: NOT FOUND in the published item")
+            print(f"  {name}: NOT FOUND in the published item")
             ok = False
             continue
         igual = subprocess.call(["diff", "-r", str(origen), str(copia)]) == 0
-        print(f"  {nombre}: {'identical' if igual else 'DIFFERENT'}")
+        print(f"  {name}: {'identical' if igual else 'DIFFERENT'}")
         ok = ok and igual
     return ok
 

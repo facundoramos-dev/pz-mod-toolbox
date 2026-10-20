@@ -76,143 +76,143 @@ GLIFOS = {
 }
 
 # Palette shared by every listing image
-FONDO_ARRIBA = (38, 46, 54)
-FONDO_ABAJO = (19, 23, 27)
-BORDE = (63, 72, 82)
+BG_TOP = (38, 46, 54)
+BG_BOTTOM = (19, 23, 27)
+BORDER = (63, 72, 82)
 PANEL = (16, 20, 24)
-PANEL_BORDE = (107, 118, 131)
-TEXTO_FUERTE = (214, 222, 230)
-TEXTO_SUAVE = (138, 148, 158)
-AMBAR = (232, 182, 76)
-VERDE = (124, 179, 66)
-VERDE_FONDO = (44, 58, 47)
-ROJO = (198, 92, 78)
-ROJO_FONDO = (58, 33, 31)
-ACERO = (206, 216, 226)
-ACERO_SOMBRA = (140, 152, 165)
-MADERA = (104, 68, 42)
-PIEDRA = (78, 84, 90)
-PIEDRA_CARA = (104, 112, 120)
+PANEL_BORDER = (107, 118, 131)
+TEXT_BRIGHT = (214, 222, 230)
+TEXT_DIM = (138, 148, 158)
+AMBER = (232, 182, 76)
+GREEN = (124, 179, 66)
+GREEN_BG = (44, 58, 47)
+RED = (198, 92, 78)
+RED_BG = (58, 33, 31)
+STEEL = (206, 216, 226)
+STEEL_SHADE = (140, 152, 165)
+WOOD = (104, 68, 42)
+STONE = (78, 84, 90)
+STONE_TOP = (104, 112, 120)
 
 
-class Lienzo:
-    def __init__(self, ancho, alto, color=FONDO_ABAJO):
-        self.ancho, self.alto = ancho, alto
-        self.px = bytearray(ancho * alto * 3)
-        for i in range(ancho * alto):
+class Canvas:
+    def __init__(self, width, alto, color=BG_BOTTOM):
+        self.width, self.alto = width, alto
+        self.px = bytearray(width * alto * 3)
+        for i in range(width * alto):
             self.px[i * 3:i * 3 + 3] = bytes(color)
 
-    def rectangulo(self, x, y, ancho, alto, color):
+    def rectangle(self, x, y, width, alto, color):
         for py in range(max(0, int(y)), min(self.alto, int(y + alto))):
-            for px in range(max(0, int(x)), min(self.ancho, int(x + ancho))):
-                self.px[(py * self.ancho + px) * 3:(py * self.ancho + px) * 3 + 3] = bytes(color)
+            for px in range(max(0, int(x)), min(self.width, int(x + width))):
+                self.px[(py * self.width + px) * 3:(py * self.width + px) * 3 + 3] = bytes(color)
 
-    def circulo(self, cx, cy, radio, color):
+    def circle(self, cx, cy, radio, color):
         for py in range(max(0, int(cy - radio)), min(self.alto, int(cy + radio) + 1)):
-            for px in range(max(0, int(cx - radio)), min(self.ancho, int(cx + radio) + 1)):
+            for px in range(max(0, int(cx - radio)), min(self.width, int(cx + radio) + 1)):
                 if (px - cx) ** 2 + (py - cy) ** 2 <= radio * radio:
-                    self.px[(py * self.ancho + px) * 3:(py * self.ancho + px) * 3 + 3] = bytes(color)
+                    self.px[(py * self.width + px) * 3:(py * self.width + px) * 3 + 3] = bytes(color)
 
-    def degradado_vertical(self, arriba, abajo):
+    def vertical_gradient(self, arriba, abajo):
         for y in range(self.alto):
             t = y / (self.alto - 1)
             color = tuple(round(arriba[i] + (abajo[i] - arriba[i]) * t) for i in range(3))
-            self.rectangulo(0, y, self.ancho, 1, color)
+            self.rectangle(0, y, self.width, 1, color)
 
-    def linea(self, x0, y0, x1, y1, grosor, color):
-        pasos = int(max(abs(x1 - x0), abs(y1 - y0)) * 2) + 1
-        for i in range(pasos + 1):
-            t = i / pasos
+    def line(self, x0, y0, x1, y1, grosor, color):
+        steps = int(max(abs(x1 - x0), abs(y1 - y0)) * 2) + 1
+        for i in range(steps + 1):
+            t = i / steps
             x = x0 + (x1 - x0) * t
             y = y0 + (y1 - y0) * t
-            self.circulo(int(round(x)), int(round(y)), max(1, grosor // 2), color)
+            self.circle(int(round(x)), int(round(y)), max(1, grosor // 2), color)
 
-    def panel(self, x, y, ancho, alto, fondo=PANEL, borde=PANEL_BORDE, grosor=3):
-        self.rectangulo(x, y, ancho, alto, fondo)
-        self.rectangulo(x, y, ancho, grosor, borde)
-        self.rectangulo(x, y + alto - grosor, ancho, grosor, borde)
-        self.rectangulo(x, y, grosor, alto, borde)
-        self.rectangulo(x + ancho - grosor, y, grosor, alto, borde)
+    def panel(self, x, y, width, alto, fondo=PANEL, borde=PANEL_BORDER, grosor=3):
+        self.rectangle(x, y, width, alto, fondo)
+        self.rectangle(x, y, width, grosor, borde)
+        self.rectangle(x, y + alto - grosor, width, grosor, borde)
+        self.rectangle(x, y, grosor, alto, borde)
+        self.rectangle(x + width - grosor, y, grosor, alto, borde)
 
-    def ancho_texto(self, texto, escala):
-        if not texto:
+    def text_width(self, text, scale):
+        if not text:
             return 0
-        return (5 * escala + escala) * len(texto) - escala
+        return (5 * scale + scale) * len(text) - scale
 
-    def texto(self, x, y, texto, escala, color):
+    def text(self, x, y, text, scale, color):
         """Left aligned text, single line."""
         cx = int(x)
-        for letra in texto:
+        for letra in text:
             glifo = GLIFOS.get(letra.upper(), GLIFOS[" "])
             for fila, bits in enumerate(glifo):
                 for columna, bit in enumerate(bits):
                     if bit == "1":
-                        self.rectangulo(cx + columna * escala,
-                                        int(y) + fila * escala, escala, escala, color)
-            cx += 6 * escala
+                        self.rectangle(cx + columna * scale,
+                                        int(y) + fila * scale, scale, scale, color)
+            cx += 6 * scale
         return cx
 
-    def texto_centrado_region(self, x, y, texto, escala, color):
+    def text_centered_in_region(self, x, y, text, scale, color):
         """Centers the text inside the region [x, width - x].
 
         Shrinks the scale when the text does not fit.
         """
-        paso = 5 * escala + escala
-        total = paso * len(texto) - escala
-        if total > self.ancho - 2 * x:
-            escala = max(1, (self.ancho - 2 * x + escala) // (6 * len(texto)))
-            paso = 5 * escala + escala
-        cx = x + (self.ancho - 2 * x - (paso * len(texto) - escala)) // 2
-        for letra in texto:
+        step = 5 * scale + scale
+        total = step * len(text) - scale
+        if total > self.width - 2 * x:
+            scale = max(1, (self.width - 2 * x + scale) // (6 * len(text)))
+            step = 5 * scale + scale
+        cx = x + (self.width - 2 * x - (step * len(text) - scale)) // 2
+        for letra in text:
             glifo = GLIFOS.get(letra.upper(), GLIFOS[" "])
             for fila, bits in enumerate(glifo):
                 for columna, bit in enumerate(bits):
                     if bit == "1":
-                        self.rectangulo(cx + columna * escala,
-                                        int(y) + fila * escala, escala, escala, color)
-            cx += paso
+                        self.rectangle(cx + columna * scale,
+                                        int(y) + fila * scale, scale, scale, color)
+            cx += step
         return cx
 
-    def texto_centrado(self, cx, y, texto, escala, color):
-        ancho = self.ancho_texto(texto, escala)
-        return self.texto(cx - ancho // 2, y, texto, escala, color)
+    def text_centered(self, cx, y, text, scale, color):
+        width = self.text_width(text, scale)
+        return self.text(cx - width // 2, y, text, scale, color)
 
-    def texto_multilinea(self, x, y, texto, escala, color, ancho_max=None, interlineado=None):
+    def text_block(self, x, y, text, scale, color, ancho_max=None, interlineado=None):
         """Text with explicit line breaks and word wrapping."""
         cx = int(x)
         cy = int(y)
-        alto_linea = interlineado or (9 * escala)
-        for parrafo in texto.split("\n"):
+        alto_linea = interlineado or (9 * scale)
+        for parrafo in text.split("\n"):
             if not parrafo:
                 cy += alto_linea
                 continue
             palabras = parrafo.split(" ")
-            linea = ""
+            line = ""
             for palabra in palabras:
-                prueba = palabra if not linea else linea + " " + palabra
-                if ancho_max and self.ancho_texto(prueba, escala) > ancho_max and linea:
-                    cx = self.texto(x, cy, linea, escala, color)
+                prueba = palabra if not line else line + " " + palabra
+                if ancho_max and self.text_width(prueba, scale) > ancho_max and line:
+                    cx = self.text(x, cy, line, scale, color)
                     cy += alto_linea
-                    linea = palabra
+                    line = palabra
                 else:
-                    linea = prueba
-            if linea:
-                cx = self.texto(x, cy, linea, escala, color)
+                    line = prueba
+            if line:
+                cx = self.text(x, cy, line, scale, color)
                 cy += alto_linea
         return cy
 
 
-def escribir_png(lienzo, ruta):
-    crudo = b"".join(b"\x00" + bytes(lienzo.px[y * lienzo.ancho * 3:(y + 1) * lienzo.ancho * 3])
-                     for y in range(lienzo.alto))
+def write_png(canvas, ruta):
+    crudo = b"".join(b"\x00" + bytes(canvas.px[y * canvas.width * 3:(y + 1) * canvas.width * 3])
+                     for y in range(canvas.alto))
     os.makedirs(os.path.dirname(os.path.abspath(ruta)), exist_ok=True)
 
-    def chunk(tipo, datos):
-        return (struct.pack(">I", len(datos)) + tipo + datos
-                + struct.pack(">I", zlib.crc32(tipo + datos) & 0xFFFFFFFF))
+    def chunk(tipo, data):
+        return (struct.pack(">I", len(data)) + tipo + data
+                + struct.pack(">I", zlib.crc32(tipo + data) & 0xFFFFFFFF))
 
     png = (b"\x89PNG\r\n\x1a\n"
-           + chunk(b"IHDR", struct.pack(">IIBBBBB", lienzo.ancho, lienzo.alto, 8, 2, 0, 0, 0))
+           + chunk(b"IHDR", struct.pack(">IIBBBBB", canvas.width, canvas.alto, 8, 2, 0, 0, 0))
            + chunk(b"IDAT", zlib.compress(crudo, 9))
            + chunk(b"IEND", b""))
     with open(ruta, "wb") as f:
@@ -220,16 +220,16 @@ def escribir_png(lienzo, ruta):
     return os.path.getsize(ruta)
 
 
-def marco(lienzo, grosor=4):
+def frame(canvas, grosor=4):
     """Outer frame, shared by the cover and the gallery images."""
-    w, h = lienzo.ancho, lienzo.alto
-    lienzo.rectangulo(grosor, grosor, w - 2 * grosor, 3, BORDE)
-    lienzo.rectangulo(grosor, h - grosor - 3, w - 2 * grosor, 3, BORDE)
-    lienzo.rectangulo(grosor, grosor, 3, h - 2 * grosor, BORDE)
-    lienzo.rectangulo(w - grosor - 3, grosor, 3, h - 2 * grosor, BORDE)
+    w, h = canvas.width, canvas.alto
+    canvas.rectangle(grosor, grosor, w - 2 * grosor, 3, BORDER)
+    canvas.rectangle(grosor, h - grosor - 3, w - 2 * grosor, 3, BORDER)
+    canvas.rectangle(grosor, grosor, 3, h - 2 * grosor, BORDER)
+    canvas.rectangle(w - grosor - 3, grosor, 3, h - 2 * grosor, BORDER)
 
 
-def katana(lienzo, x0, y0, x1, y1, escala=1):
+def katana(canvas, x0, y0, x1, y1, scale=1):
     """A katana drawn diagonally: handle at the bottom left, blade towards the top.
 
     Lengths are proportional to the given line; the scale only drives the
@@ -242,14 +242,14 @@ def katana(lienzo, x0, y0, x1, y1, escala=1):
     largo_guarda = largo * 0.05
     hx, hy = x0 + ux * largo_empunadura, y0 + uy * largo_empunadura
     gx, gy = hx + ux * largo_guarda, hy + uy * largo_guarda
-    lienzo.linea(x0, y0, hx, hy, 11 * escala, MADERA)
-    lienzo.linea(hx, hy, gx, gy, 13 * escala, AMBAR)
-    lienzo.linea(gx, gy, x1, y1, 7 * escala, ACERO_SOMBRA)
-    lienzo.linea(gx + ux * 2, gy + uy * 2, x1, y1, 4 * escala, ACERO)
+    canvas.line(x0, y0, hx, hy, 11 * scale, WOOD)
+    canvas.line(hx, hy, gx, gy, 13 * scale, AMBER)
+    canvas.line(gx, gy, x1, y1, 7 * scale, STEEL_SHADE)
+    canvas.line(gx + ux * 2, gy + uy * 2, x1, y1, 4 * scale, STEEL)
     return (x1, y1)
 
 
-def piedra_afilar(lienzo, x, y, ancho, alto):
-    lienzo.rectangulo(x, y, ancho, alto, PIEDRA)
-    lienzo.rectangulo(x, y, ancho, 7, PIEDRA_CARA)
-    lienzo.rectangulo(x, y + alto - 7, ancho, 7, (58, 63, 68))
+def whetstone(canvas, x, y, width, alto):
+    canvas.rectangle(x, y, width, alto, STONE)
+    canvas.rectangle(x, y, width, 7, STONE_TOP)
+    canvas.rectangle(x, y + alto - 7, width, 7, (58, 63, 68))
