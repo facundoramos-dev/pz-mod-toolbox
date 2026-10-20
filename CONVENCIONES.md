@@ -64,3 +64,37 @@ Build artifacts (`workshop/Contents/`, `workshop/workshop_build_item.vdf`,
 - Tags are set by the game client (`ISteamUGC::SetItemTags` runs at upload
   time, and the vdf has no field for them): *Submit Mod to Workshop* → *Existing
   Item* → tick the tags → publish.
+
+## What the upload vdf can and cannot do
+
+The vdf carries the content, the cover, the title, the description, the change
+note and the visibility. It has **no** field for the rest:
+
+| Missing | Why | Where to do it |
+|---|---|---|
+| Other languages | one title and description only | web UI, per language |
+| Carousel images | one `previewfile` only | web UI |
+| Tags | set by `ISteamUGC::SetItemTags` at upload time | game client |
+| Per item dependencies, links, comments | not part of the vdf | web UI |
+
+Tag ids for Project Zomboid, for tools that ask for them by id:
+
+| Tag | id | | Tag | id |
+|---|---|---|---|---|
+| Build 42 | 448331 | | Weapons | 274770 |
+| Balance | 266335 | | Items | 203294 |
+| Interface | 203292 | | QoL | 228474 |
+| Multiplayer | 274768 | | Misc | 274767 |
+| Framework | 205122 | | Building | 44746 |
+| Language/Translation | 274766 | | WIP | 448778 |
+
+The full list is embedded in the browse page JSON:
+<https://steamcommunity.com/workshop/browse/?appid=108600&section=readytouseitems>
+
+## Gotchas
+
+- The VDF parser does **not** interpret `\n` escapes: line breaks in a title or
+  description have to be written literally in the file, otherwise the Workshop
+  page shows the text `\n` instead of a line break.
+- No double quotes inside a vdf value: use `[i]...[/i]`, `[b]...[/b]` or avoid
+  them.
