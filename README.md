@@ -13,6 +13,7 @@ toolbox/drawing.py      drawing primitives and the 5x7 font (standard library on
 toolbox/publish.py     builds the package and the upload vdf, uploads, verifies
 toolbox/art/katana.py listing artwork for the Katana Sharpening mod
 toolbox/art/perks.py  listing artwork for the Perk Descriptions mod
+toolbox/generate_perks.py regenerates the tooltip patch of the Perk Descriptions mod
 template/              template for a new mod repository
 CONVENTIONS.md        code, commit and release conventions
 ```
@@ -33,6 +34,12 @@ Regenerate the listing artwork of a mod:
 
 ```bash
 python3 -m toolbox.art.katana ../pz-katana-sharpening
+```
+
+Regenerate the tooltip patch of the Perk Descriptions mod, after a game update:
+
+```bash
+python3 -m toolbox.generate_perks ../pz-perk-descriptions <game/install/path>
 ```
 
 ## Requirements
