@@ -9,10 +9,10 @@ One paragraph: what the mod does and why it exists.
 ## Layout
 
 ```
-mods/MOD_NAME/            the mod published to the Workshop
-workshop/listing.json       listing data: title, descriptions per language
-workshop/preview.png      cover image, 256x256
-workshop/gallery/         carousel images, 1280x720
+mods/MOD_NAME/         the mod published to the Workshop
+workshop/listing.json  listing data: title, descriptions per language
+workshop/preview.png   cover image, 256x256
+workshop/gallery/      carousel images, 1280x720
 ```
 
 The listing images and the upload itself are handled by
