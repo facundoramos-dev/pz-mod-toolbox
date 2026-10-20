@@ -98,12 +98,12 @@ def upload(vdf_path, user, dry_run):
     return subprocess.call(comando)
 
 
-def verify(repo, ficha):
+def verify(repo, ficha, user):
     """Downloads the published item and compares it with the repository."""
     destino = pathlib.Path("/tmp/pz-verify") / str(ficha["publishedfileid"])
     if destino.exists():
         shutil.rmtree(destino)
-    subprocess.call([STEAMCMD, "+login", os.environ.get("STEAM_USER", ""),
+    subprocess.call([STEAMCMD, "+login", user,
                      "+force_install_dir", str(destino),
                      "+workshop_download_item", APP_ID, str(ficha["publishedfileid"]),
                      "+quit"],
@@ -149,7 +149,7 @@ def main():
         return codigo
 
     print("verifying the published item...")
-    if not verify(repo, ficha):
+    if not verify(repo, ficha, args.user):
         print("the published item does not match the repository")
         return 1
     print("done")
