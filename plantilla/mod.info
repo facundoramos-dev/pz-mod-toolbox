@@ -1,0 +1,8 @@
+name=MOD NAME
+id=MOD_ID
+author=facundoramos-dev
+description=ONE LINE DESCRIPTION IN ENGLISH.
+version=1.0.0
+versionMin=42.0
+modversion=1
+url=https://github.com/facundoramos-dev/MOD_REPO
