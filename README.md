@@ -9,12 +9,12 @@ artwork generators, the upload pipeline and the repository template.
 ## Layout
 
 ```
-toolbox/dibujo.py      drawing primitives and the 5x7 font (standard library only)
+toolbox/drawing.py      drawing primitives and the 5x7 font (standard library only)
 toolbox/publish.py     builds the package and the upload vdf, uploads, verifies
 toolbox/art/katana.py listing artwork for the Katana Sharpening mod
 toolbox/art/perks.py  listing artwork for the Perk Descriptions mod
 template/              template for a new mod repository
-CONVENCIONES.md        code, commit and release conventions
+CONVENTIONS.md        code, commit and release conventions
 ```
 
 ## Usage
@@ -44,7 +44,7 @@ python3 -m toolbox.art.katana ../pz-katana-sharpening
 
 ## Conventions
 
-See [`CONVENCIONES.md`](CONVENCIONES.md).
+See [`CONVENTIONS.md`](CONVENTIONS.md).
 
 ## License
 

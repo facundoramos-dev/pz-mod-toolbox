@@ -3,11 +3,11 @@
 
 The mod repository only holds the mod itself and its listing assets. Everything
 needed to publish it (the content package, the upload vdf and the upload
-command) is built here, from `workshop/ficha.json`.
+command) is built here, from `workshop/listing.json`.
 
 Steps:
     1. copy the mod into `workshop/Contents/mods/` (the package Steam gets)
-    2. build `workshop/workshop_build_item.vdf` from the ficha and local paths
+    2. build `workshop/workshop_build_item.vdf` from the listing and local paths
     3. run steamCMD `+workshop_build_item`
     4. verify the published item against the repository
 
@@ -28,24 +28,24 @@ APP_ID = "108600"
 STEAMCMD = os.environ.get("STEAMCMD", os.path.expanduser("~/steamcmd/steamcmd.sh"))
 
 
-def load_ficha(repo):
+def load_listing(repo):
     """Reads the listing data of a mod repository."""
-    with open(repo / "workshop" / "ficha.json", encoding="utf-8") as f:
+    with open(repo / "workshop" / "listing.json", encoding="utf-8") as f:
         return json.load(f)
 
 
-def sync_contents(repo, ficha):
+def sync_contents(repo, listing):
     """Copies the mod into the package folder Steam receives."""
     destino = repo / "workshop" / "Contents" / "mods"
     if destino.exists():
         shutil.rmtree(destino)
     destino.mkdir(parents=True)
-    for name in ficha["mods"]:
+    for name in listing["mods"]:
         shutil.copytree(repo / "mods" / name, destino / name)
     return destino
 
 
-def build_vdf(repo, ficha, vdf_path):
+def build_vdf(repo, listing, vdf_path):
     """Writes the upload vdf. The content and preview paths are absolute, so
     they are rebuilt for every clone."""
     raiz = repo.resolve()
@@ -53,22 +53,22 @@ def build_vdf(repo, ficha, vdf_path):
         '"workshopitem"\n'
         "{\n"
         f'\t"appid"\t\t"{APP_ID}"\n'
-        f'\t"publishedfileid"\t\t"{ficha["publishedfileid"]}"\n'
+        f'\t"publishedfileid"\t\t"{listing["publishedfileid"]}"\n'
         f'\t"contentfolder"\t\t"{(raiz / "workshop" / "Contents")}"\n'
         f'\t"previewfile"\t\t"{(raiz / "workshop" / "preview.png")}"\n'
-        f'\t"visibility"\t\t"{ficha.get("visibility", 0)}"\n'
-        f'\t"title"\t\t"{ficha["title"]}"\n'
-        f'\t"description"\t\t"{ficha["description"]}"\n'
-        f'\t"changenote"\t\t"{ficha.get("changenote", "")}"\n'
+        f'\t"visibility"\t\t"{listing.get("visibility", 0)}"\n'
+        f'\t"title"\t\t"{listing["title"]}"\n'
+        f'\t"description"\t\t"{listing["description"]}"\n'
+        f'\t"changenote"\t\t"{listing.get("changenote", "")}"\n'
         "}\n",
         encoding="utf-8")
     return vdf_path
 
 
-def write_descriptions(repo, ficha):
+def write_descriptions(repo, listing):
     """Writes the per language listing texts, ready to paste in the web UI."""
     lineas = [
-        f"# {ficha['title']}",
+        f"# {listing['title']}",
         "",
         "The upload vdf only carries one title and description, so they always land in",
         "the default slot, which the Workshop shows as **English**. The other languages",
@@ -81,11 +81,11 @@ def write_descriptions(repo, ficha):
         "other languages are always pasted **after** the last steamCMD upload.",
         "",
     ]
-    for idioma, data in ficha.get("languages", {}).items():
+    for idioma, data in listing.get("languages", {}).items():
         lineas += ["---", "", f"## {idioma}", "", "Title:", "", "```",
                    data["title"], "```", "", "Description:", "", "```",
                    data["description"], "```", ""]
-    destino = repo / "workshop" / "descripciones.md"
+    destino = repo / "workshop" / "descriptions.md"
     destino.write_text("\n".join(lineas), encoding="utf-8")
     return destino
 
@@ -98,19 +98,19 @@ def upload(vdf_path, user, dry_run):
     return subprocess.call(comando)
 
 
-def verify(repo, ficha, user):
+def verify(repo, listing, user):
     """Downloads the published item and compares it with the repository."""
-    destino = pathlib.Path("/tmp/pz-verify") / str(ficha["publishedfileid"])
+    destino = pathlib.Path("/tmp/pz-verify") / str(listing["publishedfileid"])
     if destino.exists():
         shutil.rmtree(destino)
     subprocess.call([STEAMCMD, "+login", user,
                      "+force_install_dir", str(destino),
-                     "+workshop_download_item", APP_ID, str(ficha["publishedfileid"]),
+                     "+workshop_download_item", APP_ID, str(listing["publishedfileid"]),
                      "+quit"],
                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    publicado = destino / "steamapps" / "workshop" / "content" / APP_ID / str(ficha["publishedfileid"])
+    publicado = destino / "steamapps" / "workshop" / "content" / APP_ID / str(listing["publishedfileid"])
     ok = True
-    for name in ficha["mods"]:
+    for name in listing["mods"]:
         origen = repo / "mods" / name
         copia = publicado / "mods" / name
         if not copia.exists():
@@ -133,15 +133,15 @@ def main():
     args = parser.parse_args()
 
     repo = pathlib.Path(args.repo).resolve()
-    ficha = load_ficha(repo)
+    listing = load_listing(repo)
 
-    print(f"Publishing {ficha['title']} ({ficha['publishedfileid']})")
+    print(f"Publishing {listing['title']} ({listing['publishedfileid']})")
     print(f"  repository: {repo}")
-    destino = sync_contents(repo, ficha)
+    destino = sync_contents(repo, listing)
     print(f"  package:    {destino}")
-    vdf = build_vdf(repo, ficha, repo / "workshop" / "workshop_build_item.vdf")
+    vdf = build_vdf(repo, listing, repo / "workshop" / "workshop_build_item.vdf")
     print(f"  vdf:        {vdf}")
-    write_descriptions(repo, ficha)
+    write_descriptions(repo, listing)
 
     codigo = upload(vdf, args.user, args.dry_run)
     if codigo != 0:
@@ -149,7 +149,7 @@ def main():
         return codigo
 
     print("verifying the published item...")
-    if not verify(repo, ficha, args.user):
+    if not verify(repo, listing, args.user):
         print("the published item does not match the repository")
         return 1
     print("done")

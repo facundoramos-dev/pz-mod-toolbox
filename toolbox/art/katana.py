@@ -13,7 +13,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from toolbox.dibujo import (STEEL, STEEL_SHADE, AMBER, BORDER, BG_BOTTOM,
+from toolbox.drawing import (STEEL, STEEL_SHADE, AMBER, BORDER, BG_BOTTOM,
                             BG_TOP, WOOD, PANEL, PANEL_BORDER, STONE,
                             STONE_TOP, RED, RED_BG, TEXT_BRIGHT,
                             TEXT_DIM, GREEN, GREEN_BG, Canvas,
