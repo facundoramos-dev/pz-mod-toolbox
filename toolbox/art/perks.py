@@ -6,7 +6,7 @@ and the 1280x720 gallery images (the carousel below it). Both are uploaded
 from the Workshop web UI, never through the mod content.
 
 Usage:
-    python3 -m toolbox.arte.perks [mod/repo/path]
+    python3 -m toolbox.art.perks [mod/repo/path]
 """
 import os
 import sys
@@ -128,8 +128,8 @@ def _image_how():
         canvas.text_centered(x + 44, 229, number, 5, GREEN)
         canvas.text(x + 24, 290, name, 3, AMBER)
         canvas.text_block(x + 24, 330, detail, 3, TEXT_DIM, width - 48)
-        for j, clave in enumerate(keys):
-            canvas.text(x + 24, 448 + j * 30, clave, 2, GREEN)
+        for j, key in enumerate(keys):
+            canvas.text(x + 24, 448 + j * 30, key, 2, GREEN)
         if i < 2:
             canvas.text(x + width + 6, 330, "→", 4, AMBER)
         x += width + 36

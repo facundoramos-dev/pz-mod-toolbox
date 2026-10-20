@@ -6,7 +6,7 @@ and the 1280x720 gallery images (the carousel below it). Both are uploaded
 from the Workshop web UI, never through the mod content.
 
 Usage:
-    python3 -m toolbox.arte.katana [mod/repo/path]
+    python3 -m toolbox.art.katana [mod/repo/path]
 """
 import os
 import sys
