@@ -41,23 +41,93 @@ FOOD_GREEN = (104, 150, 78)
 FOOD_YELLOW = (214, 178, 74)
 FOOD_BLUE = (78, 116, 168)
 FROZEN = (150, 190, 210)
+WOOD_LIGHT = (108, 78, 50)
+WOOD_DARK = (62, 44, 30)
+WOOD_LINE = (48, 33, 22)
+BANNER_WOOD = (86, 60, 38)
+BANNER_EDGE = (146, 106, 62)
 
 
 def _background(width, height):
-    canvas = Canvas(width, height, BG_BOTTOM)
-    canvas.vertical_gradient(BG_TOP, BG_BOTTOM)
+    """A warm wooden wall, the way the shop interiors look in game."""
+    canvas = Canvas(width, height, WOOD_DARK)
+    canvas.vertical_gradient(WOOD_LIGHT, WOOD_DARK)
+    plank = 26 if width == COVER else 40
+    for y in range(0, height, plank):
+        canvas.rectangle(0, y, width, 2, WOOD_LINE)
+        canvas.rectangle(0, y + 2, width, 1, (78, 56, 38))
     frame(canvas, 4 if width == COVER else 6)
     return canvas
 
 
 def _heading(canvas, text, scale=6, y=48):
-    canvas.text(MARGIN, y, text, scale, AMBER)
-    canvas.rectangle(MARGIN, y + 7 * scale + 16, 320, 4, AMBER)
+    """A wooden sign board with the title, like the mod banners in game."""
+    height = 7 * scale + 26
+    width = canvas.width - 2 * MARGIN
+    canvas.rectangle(MARGIN, y, width, height, BANNER_WOOD)
+    canvas.rectangle(MARGIN, y, width, 4, BANNER_EDGE)
+    canvas.rectangle(MARGIN, y + height - 4, width, 4, BANNER_EDGE)
+    canvas.rectangle(MARGIN, y, 4, height, BANNER_EDGE)
+    canvas.rectangle(MARGIN + width - 4, y, 4, height, BANNER_EDGE)
+    canvas.text_centered(MARGIN + width // 2, y + 13, text, scale, AMBER)
 
 
 def _footer(canvas, text, scale=3, y=596):
     canvas.rectangle(MARGIN, y - 24, canvas.width - 2 * MARGIN, 3, BORDER)
     canvas.text_block(MARGIN, y, text, scale, TEXT_DIM, canvas.width - 2 * MARGIN)
+
+
+
+# --------------------------------------------------------------------------- #
+# The mascot
+# --------------------------------------------------------------------------- #
+
+FUR = (214, 150, 92)
+FUR_DARK = (176, 112, 62)
+MASK = (58, 46, 42)
+MUZZLE = (240, 224, 200)
+EYE_WHITE = (250, 250, 250)
+INK = (32, 26, 24)
+SHIRT = (74, 108, 156)
+SHIRT_DARK = (54, 82, 122)
+
+
+def spiffo(canvas, x, y, s, holding=None):
+    """A cartoon raccoon mascot: a nod to Spiffo, the Project Zomboid mascot.
+
+    s is the size of the head; the body is drawn proportionally below it.
+    """
+    # ears, small and set to the sides
+    canvas.ellipse(x + 0.16 * s, y + 0.19 * s, 0.11 * s, 0.10 * s, FUR_DARK)
+    canvas.ellipse(x + 0.84 * s, y + 0.19 * s, 0.11 * s, 0.10 * s, FUR_DARK)
+    canvas.ellipse(x + 0.16 * s, y + 0.19 * s, 0.06 * s, 0.05 * s, FUR)
+    canvas.ellipse(x + 0.84 * s, y + 0.19 * s, 0.06 * s, 0.05 * s, FUR)
+    # head
+    canvas.ellipse(x + 0.50 * s, y + 0.50 * s, 0.38 * s, 0.33 * s, FUR)
+    # the raccoon mask: one wide band across the eyes
+    canvas.ellipse(x + 0.50 * s, y + 0.46 * s, 0.30 * s, 0.16 * s, MASK)
+    # eyes
+    canvas.ellipse(x + 0.36 * s, y + 0.45 * s, 0.08 * s, 0.07 * s, EYE_WHITE)
+    canvas.ellipse(x + 0.64 * s, y + 0.45 * s, 0.08 * s, 0.07 * s, EYE_WHITE)
+    canvas.circle(x + 0.37 * s, y + 0.46 * s, 0.045 * s, INK)
+    canvas.circle(x + 0.65 * s, y + 0.46 * s, 0.045 * s, INK)
+    canvas.circle(x + 0.34 * s, y + 0.42 * s, 0.02 * s, EYE_WHITE)
+    canvas.circle(x + 0.62 * s, y + 0.42 * s, 0.02 * s, EYE_WHITE)
+    # muzzle, pointed downwards
+    canvas.ellipse(x + 0.50 * s, y + 0.68 * s, 0.16 * s, 0.13 * s, MUZZLE)
+    canvas.ellipse(x + 0.50 * s, y + 0.60 * s, 0.06 * s, 0.045 * s, INK)
+    canvas.line(x + 0.44 * s, y + 0.72 * s, x + 0.50 * s, y + 0.76 * s, 2, INK)
+    canvas.line(x + 0.56 * s, y + 0.72 * s, x + 0.50 * s, y + 0.76 * s, 2, INK)
+    # body: shoulders and a rounded torso in a blue shirt
+    canvas.ellipse(x + 0.50 * s, y + 1.18 * s, 0.32 * s, 0.30 * s, SHIRT)
+    canvas.ellipse(x + 0.50 * s, y + 0.96 * s, 0.24 * s, 0.10 * s, SHIRT)
+    canvas.ellipse(x + 0.50 * s, y + 0.98 * s, 0.09 * s, 0.04 * s, SHIRT_DARK)
+    # arms, joined to the shoulders
+    canvas.ellipse(x + 0.20 * s, y + 1.06 * s, 0.10 * s, 0.08 * s, FUR)
+    canvas.ellipse(x + 0.80 * s, y + 1.06 * s, 0.10 * s, 0.08 * s, FUR)
+    if holding == "can":
+        can(canvas, x + 0.74 * s, y + 0.84 * s, 0.15 * s, 0.20 * s, FOOD_RED)
+    return x, y
 
 
 # --------------------------------------------------------------------------- #
@@ -196,11 +266,18 @@ def ingredient(canvas, x, y, w, h, draw, label, count):
 def build_cover(destino):
     canvas = _background(COVER, COVER)
 
-    canvas.text_centered_in_region(10, 12, "CELL FRIDGE", 3, AMBER)
-    cooler(canvas, 58, 50, 140, 160, stocked=True, doors=True)
+    # title board
+    _heading(canvas, "CELL FRIDGE", 3, 8)
 
-    canvas.rectangle(10, 218, COVER - 20, 2, BORDER)
-    canvas.text_centered(COVER // 2, 226, "100 KG + 100 KG", 2, GREEN)
+    # the scene: the cooler and the mascot next to it
+    cooler(canvas, 16, 62, 108, 122, stocked=True, doors=True)
+    spiffo(canvas, 132, 96, 86, holding="can")
+
+    # caption
+    canvas.rectangle(10, 200, COVER - 20, 42, (38, 26, 18))
+    canvas.rectangle(10, 200, COVER - 20, 2, BANNER_EDGE)
+    canvas.text_centered(COVER // 2, 210, "MORE ROOM FOR", 2, AMBER)
+    canvas.text_centered(COVER // 2, 226, "YOUR FOOD", 2, AMBER)
 
     write_png(canvas, destino)
     return destino
@@ -214,19 +291,20 @@ def _image_cooler():
     canvas = _background(GALLERY_WIDTH, GALLERY_HEIGHT)
     _heading(canvas, "A TWO DOOR DISPLAY COOLER", 6)
 
-    cooler(canvas, 120, 190, 420, 440, stocked=True, doors=True)
+    cooler(canvas, 80, 190, 340, 400, stocked=True, doors=True)
+    spiffo(canvas, 430, 330, 150, holding="can")
 
     # callouts
-    canvas.text(620, 200, "TWO DOORS, TWO CELLS", 4, AMBER)
-    canvas.text_block(620, 240,
+    canvas.text(660, 200, "TWO DOORS, TWO CELLS", 4, AMBER)
+    canvas.text_block(660, 240,
                       "A two cell entity, the size of the shop cooler. Each cell "
                       "gets its own fridge and freezer container.", 3, TEXT_DIM, 596)
-    canvas.text(620, 360, "NO EXTRA ART", 4, AMBER)
-    canvas.text_block(620, 400,
+    canvas.text(660, 360, "NO EXTRA ART", 4, AMBER)
+    canvas.text_block(660, 400,
                       "It reuses the vanilla refrigerator tiles, so the mod ships "
                       "no textures at all.", 3, TEXT_DIM, 596)
-    canvas.text(620, 520, "COOLING INCLUDED", 4, AMBER)
-    canvas.text_block(620, 560,
+    canvas.text(660, 520, "COOLING INCLUDED", 4, AMBER)
+    canvas.text_block(660, 560,
                       "It cools, it freezes, and the food still goes bad.",
                       3, TEXT_DIM, 596)
 

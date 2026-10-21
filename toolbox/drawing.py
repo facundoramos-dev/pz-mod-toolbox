@@ -113,6 +113,15 @@ class Canvas:
                 if (px - cx) ** 2 + (py - cy) ** 2 <= radio * radio:
                     self.px[(py * self.width + px) * 3:(py * self.width + px) * 3 + 3] = bytes(color)
 
+    def ellipse(self, cx, cy, rx, ry, color):
+        """An axis aligned ellipse."""
+        if rx <= 0 or ry <= 0:
+            return
+        for py in range(max(0, int(cy - ry)), min(self.alto, int(cy + ry) + 1)):
+            for px in range(max(0, int(cx - rx)), min(self.width, int(cx + rx) + 1)):
+                if ((px - cx) / rx) ** 2 + ((py - cy) / ry) ** 2 <= 1.0:
+                    self.px[(py * self.width + px) * 3:(py * self.width + px) * 3 + 3] = bytes(color)
+
     def vertical_gradient(self, arriba, abajo):
         for y in range(self.alto):
             t = y / (self.alto - 1)
