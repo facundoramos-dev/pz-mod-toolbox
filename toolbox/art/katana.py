@@ -18,28 +18,24 @@ from toolbox.drawing import (STEEL, STEEL_SHADE, AMBER, BORDER, BG_BOTTOM,
                             STONE_TOP, RED, RED_BG, TEXT_BRIGHT,
                             TEXT_DIM, GREEN, GREEN_BG, Canvas,
                             write_png, frame, katana, whetstone)
+from toolbox.art.shared import (BANNER_EDGE, WOOD_DARK, WOOD_LIGHT, WOOD_LINE,
+                                background, caption, footer, heading, spiffo)
 
 GALLERY_WIDTH, GALLERY_HEIGHT = 1280, 720
 COVER = 256
-MARGEN = 64
+MARGIN = 64
 
 
 def _fondo(width, alto):
-    canvas = Canvas(width, alto, BG_BOTTOM)
-    canvas.vertical_gradient(BG_TOP, BG_BOTTOM)
-    frame(canvas, 4 if width == COVER else 6)
-    return canvas
+    return background(Canvas(width, alto, WOOD_DARK), width, alto)
 
 
 def _heading(canvas, text, scale=6, y=48):
-    canvas.text(MARGEN, y, text, scale, AMBER)
-    canvas.rectangle(MARGEN, y + 7 * scale + 16, 320, 4, AMBER)
+    heading(canvas, text, scale, y, MARGIN)
 
 
 def _footer(canvas, text, scale=3, y=596):
-    canvas.rectangle(MARGEN, y - 24, canvas.width - 2 * MARGEN, 3, BORDER)
-    canvas.text_block(MARGEN, y, text, scale, TEXT_DIM,
-                             canvas.width - 2 * MARGEN)
+    footer(canvas, text, scale, y, MARGIN)
 
 
 def _etiqueta(canvas, x, y, text, color, fondo, scale=3):
@@ -54,35 +50,18 @@ def _etiqueta(canvas, x, y, text, color, fondo, scale=3):
 # --------------------------------------------------------------------------- #
 
 def build_cover(destino):
-    canvas = _fondo(COVER, COVER)
+    lienzo = _fondo(COVER, COVER)
 
-    canvas.text_centered_in_region(12, 20, "KATANA", 6, AMBER)
-    canvas.text_centered_in_region(12, 72, "SHARPENING", 3, TEXT_DIM)
+    heading(lienzo, "KATANA SHARPENING", 2, 8, 10)
 
-    # katana drawn diagonally: handle bottom left, blade towards the top right
-    canvas.line(36, 214, 58, 198, 11, WOOD)
-    canvas.line(56, 200, 64, 193, 13, AMBER)
-    canvas.line(64, 193, 224, 86, 7, STEEL_SHADE)
-    canvas.line(64, 192, 223, 85, 4, STEEL)
+    # the scene: the katana and the mascot with a whetstone
+    katana(lienzo, 26, 196, 186, 62, scale=2)
+    spiffo(lienzo, 148, 118, 74, holding="stone")
+    whetstone(lienzo, 30, 200, 84, 22)
 
-    # whetstone
-    canvas.rectangle(148, 196, 88, 30, STONE)
-    canvas.rectangle(148, 196, 88, 7, STONE_TOP)
-    canvas.rectangle(148, 219, 88, 7, (58, 63, 68))
+    caption(lienzo, ["NOW YOU CAN", "SHARPEN IT"], 2, 216, 34)
 
-    # sharpening sparks
-    for (x, y, r) in ((190, 128, 3), (202, 116, 2), (178, 140, 2), (212, 108, 2)):
-        canvas.circle(x, y, r, AMBER)
-
-    # sharpness gauge: dull on top, full below
-    canvas.rectangle(16, 148, 84, 10, PANEL)
-    canvas.rectangle(16, 148, 84, 10, PANEL_BORDER)
-    canvas.rectangle(18, 150, 80, 6, (60, 66, 72))
-    canvas.rectangle(16, 166, 84, 10, PANEL)
-    canvas.rectangle(16, 166, 84, 10, PANEL_BORDER)
-    canvas.rectangle(18, 168, 80, 6, GREEN)
-
-    write_png(canvas, destino)
+    write_png(lienzo, destino)
     return destino
 
 
@@ -95,14 +74,14 @@ def _image_bug():
     _heading(canvas, "WHY IT COULD NOT BE SHARPENED", 6)
 
     # left panel: the vanilla recipe
-    canvas.panel(MARGEN, 180, 520, 380)
-    canvas.text(MARGEN + 28, 206, "VANILLA RECIPE", 4, TEXT_BRIGHT)
-    canvas.text(MARGEN + 28, 248, "SHARPEN BLADE", 5, AMBER)
-    canvas.text(MARGEN + 28, 306, "NEEDS AN ITEM WITH THE TAG:", 3, TEXT_DIM)
-    _etiqueta(canvas, MARGEN + 28, 340, "base:sharpenable", GREEN, GREEN_BG, 4)
-    canvas.text(MARGEN + 28, 420, "WHETSTONE OR FILE", 3, TEXT_DIM)
-    canvas.text(MARGEN + 28, 470, "NO KATANA ITEM HAS THIS", 3, TEXT_DIM)
-    canvas.text(MARGEN + 28, 496, "TAG IN THE VANILLA FILE", 3, TEXT_DIM)
+    canvas.panel(MARGIN, 180, 520, 380)
+    canvas.text(MARGIN + 28, 206, "VANILLA RECIPE", 4, TEXT_BRIGHT)
+    canvas.text(MARGIN + 28, 248, "SHARPEN BLADE", 5, AMBER)
+    canvas.text(MARGIN + 28, 306, "NEEDS AN ITEM WITH THE TAG:", 3, TEXT_DIM)
+    _etiqueta(canvas, MARGIN + 28, 340, "base:sharpenable", GREEN, GREEN_BG, 4)
+    canvas.text(MARGIN + 28, 420, "WHETSTONE OR FILE", 3, TEXT_DIM)
+    canvas.text(MARGIN + 28, 470, "NO KATANA ITEM HAS THIS", 3, TEXT_DIM)
+    canvas.text(MARGIN + 28, 496, "TAG IN THE VANILLA FILE", 3, TEXT_DIM)
 
     canvas.text(600, 320, "→", 12, AMBER)
 
@@ -128,20 +107,20 @@ def _image_damage():
     canvas = _fondo(GALLERY_WIDTH, GALLERY_HEIGHT)
     _heading(canvas, "THE EDGE SCALES THE DAMAGE", 6)
 
-    canvas.panel(MARGEN, 180, 700, 120)
-    canvas.text(MARGEN + 28, 206, "DAMAGE PER HIT", 4, TEXT_BRIGHT)
-    canvas.text(MARGEN + 28, 252, "BASE X (SHARPNESS + 1) / 2", 4, AMBER)
+    canvas.panel(MARGIN, 180, 700, 120)
+    canvas.text(MARGIN + 28, 206, "DAMAGE PER HIT", 4, TEXT_BRIGHT)
+    canvas.text(MARGIN + 28, 252, "BASE X (SHARPNESS + 1) / 2", 4, AMBER)
 
     width = 520
-    canvas.text(MARGEN, 340, "PRISTINE EDGE (1.0)", 4, TEXT_BRIGHT)
-    canvas.rectangle(MARGEN, 378, width, 34, PANEL)
-    canvas.rectangle(MARGEN + 3, 381, width - 6, 28, GREEN)
-    canvas.text(MARGEN + width + 28, 380, "100%", 5, GREEN)
+    canvas.text(MARGIN, 340, "PRISTINE EDGE (1.0)", 4, TEXT_BRIGHT)
+    canvas.rectangle(MARGIN, 378, width, 34, PANEL)
+    canvas.rectangle(MARGIN + 3, 381, width - 6, 28, GREEN)
+    canvas.text(MARGIN + width + 28, 380, "100%", 5, GREEN)
 
-    canvas.text(MARGEN, 452, "DULL EDGE (0.0)", 4, TEXT_BRIGHT)
-    canvas.rectangle(MARGEN, 490, width, 34, PANEL)
-    canvas.rectangle(MARGEN + 3, 493, (width - 6) // 2, 28, (120, 86, 60))
-    canvas.text(MARGEN + width + 28, 492, "50%", 5, (196, 140, 88))
+    canvas.text(MARGIN, 452, "DULL EDGE (0.0)", 4, TEXT_BRIGHT)
+    canvas.rectangle(MARGIN, 490, width, 34, PANEL)
+    canvas.rectangle(MARGIN + 3, 493, (width - 6) // 2, 28, (120, 86, 60))
+    canvas.text(MARGIN + width + 28, 492, "50%", 5, (196, 140, 88))
 
     canvas.panel(800, 180, 416, 380)
     canvas.text_centered(1008, 214, "CANNOT BE SHARPENED", 3, RED)
@@ -173,13 +152,13 @@ def _image_changes():
 
     y = 170
     for number, heading, detail in rows:
-        canvas.panel(MARGEN, y, GALLERY_WIDTH - 2 * MARGEN, 128)
-        canvas.circle(MARGEN + 54, y + 64, 30, GREEN_BG)
-        canvas.circle(MARGEN + 54, y + 64, 27, PANEL)
-        canvas.text_centered(MARGEN + 54, y + 51, number, 6, GREEN)
-        canvas.text(MARGEN + 120, y + 26, heading, 4, AMBER)
-        canvas.text_block(MARGEN + 120, y + 74, detail, 3, TEXT_DIM,
-                                 GALLERY_WIDTH - 2 * MARGEN - 160)
+        canvas.panel(MARGIN, y, GALLERY_WIDTH - 2 * MARGIN, 128)
+        canvas.circle(MARGIN + 54, y + 64, 30, GREEN_BG)
+        canvas.circle(MARGIN + 54, y + 64, 27, PANEL)
+        canvas.text_centered(MARGIN + 54, y + 51, number, 6, GREEN)
+        canvas.text(MARGIN + 120, y + 26, heading, 4, AMBER)
+        canvas.text_block(MARGIN + 120, y + 74, detail, 3, TEXT_DIM,
+                                 GALLERY_WIDTH - 2 * MARGIN - 160)
         y += 144
 
     _footer(canvas,

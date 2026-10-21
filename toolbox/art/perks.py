@@ -17,37 +17,35 @@ from toolbox.drawing import (AMBER, BORDER, BG_BOTTOM, BG_TOP, PANEL,
                             PANEL_BORDER, RED, RED_BG, TEXT_BRIGHT,
                             TEXT_DIM, GREEN, GREEN_BG, Canvas,
                             write_png, frame)
+from toolbox.art.shared import (BANNER_EDGE, WOOD_DARK, WOOD_LIGHT, WOOD_LINE,
+                                background, caption, footer, heading, spiffo)
 
 GALLERY_WIDTH, GALLERY_HEIGHT = 1280, 720
 COVER = 256
-MARGEN = 64
+MARGIN = 64
 
 
 def _fondo(width, alto):
-    canvas = Canvas(width, alto, BG_BOTTOM)
-    canvas.vertical_gradient(BG_TOP, BG_BOTTOM)
-    frame(canvas, 4 if width == COVER else 6)
-    return canvas
+    return background(Canvas(width, alto, WOOD_DARK), width, alto)
 
 
 def _heading(canvas, text, scale=6, y=48):
-    canvas.text(MARGEN, y, text, scale, AMBER)
-    canvas.rectangle(MARGEN, y + 7 * scale + 16, 320, 4, AMBER)
+    heading(canvas, text, scale, y, MARGIN)
 
 
 def _footer(canvas, text, scale=3, y=596):
-    canvas.rectangle(MARGEN, y - 24, canvas.width - 2 * MARGEN, 3, BORDER)
-    canvas.text_block(MARGEN, y, text, scale, TEXT_DIM,
-                             canvas.width - 2 * MARGEN)
+    footer(canvas, text, scale, y, MARGIN)
 
 
-def _tooltip(canvas, x, y, width, alto, name, lineas, color, fondo=PANEL):
+def _tooltip(canvas, x, y, width, alto, name, lineas, color, fondo=PANEL,
+             name_scale=5, line_scale=3):
     """Mockup of a skill tooltip."""
     canvas.panel(x, y, width, alto, fondo=fondo, borde=color, grosor=3)
-    canvas.text(x + 24, y + 22, name, 5, TEXT_BRIGHT)
-    canvas.rectangle(x + 24, y + 72, width - 48, 3, color)
+    canvas.text(x + 20, y + 18, name, name_scale, TEXT_BRIGHT)
+    rule = y + 18 + 7 * name_scale + 8
+    canvas.rectangle(x + 20, rule, width - 40, 3, color)
     for i, line in enumerate(lineas):
-        canvas.text(x + 24, y + 92 + i * 34, line, 3, color)
+        canvas.text(x + 20, rule + 16 + i * (7 * line_scale + 8), line, line_scale, color)
     return y + alto
 
 
@@ -56,24 +54,19 @@ def _tooltip(canvas, x, y, width, alto, name, lineas, color, fondo=PANEL):
 # --------------------------------------------------------------------------- #
 
 def build_cover(destino):
-    canvas = _fondo(COVER, COVER)
+    lienzo = _fondo(COVER, COVER)
 
-    canvas.text_centered_in_region(12, 22, "PERKS", 7, AMBER)
-    canvas.text_centered_in_region(12, 86, "DESCRIPTIONS", 3, TEXT_DIM)
+    heading(lienzo, "PERK DESCRIPTIONS", 2, 8, 10)
 
-    # mockup of the tooltip the mod fixes
-    canvas.rectangle(26, 122, 204, 72, PANEL)
-    canvas.rectangle(26, 122, 204, 3, PANEL_BORDER)
-    canvas.rectangle(26, 191, 204, 3, PANEL_BORDER)
-    canvas.rectangle(26, 122, 3, 72, PANEL_BORDER)
-    canvas.rectangle(227, 122, 3, 72, PANEL_BORDER)
-    canvas.rectangle(40, 136, 108, 7, TEXT_BRIGHT)
-    canvas.rectangle(40, 152, 176, 5, TEXT_DIM)
-    canvas.rectangle(40, 162, 148, 5, TEXT_DIM)
-    canvas.rectangle(40, 178, 176, 8, GREEN_BG)
-    canvas.rectangle(40, 178, 118, 8, GREEN)
+    # the scene: the fixed tooltip and the mascot reading it
+    _tooltip(lienzo, 8, 52, 168, 142, "AXE",
+             ["CHOP TREES", "AND GATHER", "WOOD"], GREEN, GREEN_BG,
+             name_scale=4, line_scale=2)
+    spiffo(lienzo, 184, 130, 60)
 
-    write_png(canvas, destino)
+    caption(lienzo, ["REAL DESCRIPTIONS,", "IN EVERY LANGUAGE"], 2, 200, 46)
+
+    write_png(lienzo, destino)
     return destino
 
 
@@ -85,11 +78,11 @@ def _image_bug():
     canvas = _fondo(GALLERY_WIDTH, GALLERY_HEIGHT)
     _heading(canvas, "THE VANILLA BUG", 6)
 
-    canvas.text(MARGEN, 180, "WITHOUT THE MOD", 4, RED)
-    _tooltip(canvas, MARGEN, 220, 520, 280, "AXE",
+    canvas.text(MARGIN, 180, "WITHOUT THE MOD", 4, RED)
+    _tooltip(canvas, MARGIN, 220, 520, 280, "AXE",
              ["IGUI_perks_Carpinteria", "_Description"], RED, RED_BG)
-    canvas.text(MARGEN + 24, 420, "THE RAW KEY IS SHOWN", 3, RED)
-    canvas.text(MARGEN + 24, 450, "INSTEAD OF THE TEXT", 3, RED)
+    canvas.text(MARGIN + 24, 420, "THE RAW KEY IS SHOWN", 3, RED)
+    canvas.text(MARGIN + 24, 450, "INSTEAD OF THE TEXT", 3, RED)
 
     canvas.text(696, 180, "WITH THE MOD", 4, GREEN)
     _tooltip(canvas, 696, 220, 520, 280, "AXE",
@@ -120,7 +113,7 @@ def _image_how():
          ["IGUI_perks_Carpentry", "_Description"]),
     ]
 
-    x = MARGEN
+    x = MARGIN
     for i, (number, name, detail, keys) in enumerate(steps):
         canvas.panel(x, 190, width, 330)
         canvas.circle(x + 44, 240, 26, GREEN_BG)
@@ -153,7 +146,7 @@ def _image_coverage():
          ["Overrides the game", "tooltip and nothing", "else: it can be", "removed mid game."]),
     ]
 
-    x = MARGEN
+    x = MARGIN
     width = 360
     for number, name, detail in data:
         canvas.panel(x, 190, width, 340)
