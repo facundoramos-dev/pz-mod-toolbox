@@ -47,13 +47,19 @@ def sync_contents(repo, listing):
 
 def build_vdf(repo, listing, vdf_path):
     """Writes the upload vdf. The content and preview paths are absolute, so
-    they are rebuilt for every clone."""
+    they are rebuilt for every clone.
+
+    A listing with no publishedfileid creates a new Workshop item: steamCMD
+    prints the id it assigned, and it has to be written back into the listing.
+    """
     raiz = repo.resolve()
+    item_id = listing.get("publishedfileid")
+    id_line = f'\t"publishedfileid"\t\t"{item_id}"\n' if item_id else ""
     vdf_path.write_text(
         '"workshopitem"\n'
         "{\n"
         f'\t"appid"\t\t"{APP_ID}"\n'
-        f'\t"publishedfileid"\t\t"{listing["publishedfileid"]}"\n'
+        + id_line +
         f'\t"contentfolder"\t\t"{(raiz / "workshop" / "Contents")}"\n'
         f'\t"previewfile"\t\t"{(raiz / "workshop" / "preview.png")}"\n'
         f'\t"visibility"\t\t"{listing.get("visibility", 0)}"\n'
@@ -135,7 +141,11 @@ def main():
     repo = pathlib.Path(args.repo).resolve()
     listing = load_listing(repo)
 
-    print(f"Publishing {listing['title']} ({listing['publishedfileid']})")
+    item_id = listing.get("publishedfileid")
+    if item_id:
+        print(f"Publishing {listing['title']} ({item_id})")
+    else:
+        print(f"Creating a new Workshop item for {listing['title']}")
     print(f"  repository: {repo}")
     destino = sync_contents(repo, listing)
     print(f"  package:    {destino}")
@@ -147,6 +157,11 @@ def main():
     if codigo != 0:
         print(f"upload failed with code {codigo}")
         return codigo
+
+    if not item_id:
+        print("write the publishedfileid printed above into the listing and "
+              "run the publish again")
+        return 0
 
     print("verifying the published item...")
     if not verify(repo, listing, args.user):
